@@ -80,6 +80,14 @@ class RuleValidationStorage
     /**
      * @return array
      */
+    public static function getErrors(): array
+    {
+        return self::$errors;
+    }
+
+    /**
+     * @return array
+     */
     public static function flushErrors(): array
     {
         $e = self::$errors;

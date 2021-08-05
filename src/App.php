@@ -8,6 +8,7 @@ use PhpAT\App\Event\SuiteEndEvent;
 use PhpAT\App\Event\SuiteStartEvent;
 use PhpAT\App\Provider;
 use PhpAT\App\RuleValidationStorage;
+use PhpAT\Baseline\BaselineGenerator;
 use PhpAT\Config\ConfigurationFactory;
 use PHPAT\EventDispatcher\EventDispatcher;
 use PhpAT\Parser\Ast\MapBuilder;
@@ -36,6 +37,8 @@ class App extends SingleCommandApplication
     private $mapBuilder;
     /** * @var Configuration */
     private $configuration;
+    /** @var BaselineGenerator */
+    private $baselineGenerator;
 
     protected function configure()
     {
@@ -57,6 +60,12 @@ class App extends SingleCommandApplication
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Ignore relations to core and extensions classes'
+            )
+            ->addOption(
+                'generate-baseline',
+                null,
+                InputOption::VALUE_NONE,
+                'Generate or update a phpat.baseline file'
             );
     }
 
@@ -78,6 +87,7 @@ class App extends SingleCommandApplication
         $this->dispatcher = $container->get(EventDispatcher::class);
         $this->configuration = $container->get(Configuration::class);
         $this->mapBuilder = $container->get(MapBuilder::class);
+        $this->baselineGenerator = $container->get(BaselineGenerator::class);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -101,11 +111,16 @@ class App extends SingleCommandApplication
             foreach ($statements as $statement) {
                 $this->validateStatement($statement, $map);
             }
+            $errors[$rule->getName()] = RuleValidationStorage::getErrors();
 
             $this->dispatcher->dispatch(new RuleValidationEndEvent());
         }
 
         $this->dispatcher->dispatch(new SuiteEndEvent());
+
+        if ($this->configuration->mustGenerateBaseline()) {
+            $this->baselineGenerator->generate(array_filter($errors ?? []));
+        }
 
         return (int) !(RuleValidationStorage::getTotalErrors() === 0);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpAT\App;
 
 use PhpAT\App;
+use PhpAT\Baseline\BaselineGenerator;
 use PHPAT\EventDispatcher\EventDispatcher;
 use PHPAT\EventDispatcher\ListenerProvider;
 use PhpAT\File\FileFinder;
@@ -70,6 +71,10 @@ class Provider
         $listenerProvider = (new EventListenerMapper())->populateListenerProvider(new ListenerProvider($this->builder));
         $this->builder->set(EventDispatcher::class, (new EventDispatcher($listenerProvider)));
         $this->builder->set(PhpStanDocNodeTypeExtractor::class, new PhpStanDocNodeTypeExtractor());
+
+        $this->builder
+            ->register(BaselineGenerator::class, BaselineGenerator::class)
+            ->addArgument(new Reference(Configuration::class));
 
         $this->builder
             ->register(PhpStanDocTypeNodeResolver::class, PhpStanDocTypeNodeResolver::class)

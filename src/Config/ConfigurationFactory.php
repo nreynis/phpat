@@ -25,6 +25,7 @@ class ConfigurationFactory
             $config['composer'] ?? [],
             $config['tests']['path'] ?? '',
             $this->decideVerbosity($commandOptions, $config),
+            (bool) $commandOptions['generate-baseline'],
             (bool) ($config['options']['ignore-docblocks'] ?? static::DEFAULT_OPTIONS['ignore-docblocks']),
             (bool) ($config['options']['ignore-php-extensions'] ?? static::DEFAULT_OPTIONS['ignore-php-extensions'])
         );

@@ -12,7 +12,9 @@ class Configuration
     private $srcExcluded;
     private $composerConfiguration;
     private $testsPath;
+    private $baselinePath;
     private $verbosity;
+    private $generateBaseline;
     private $ignoreDocBlocks;
     private $ignorePhpExtensions;
 
@@ -23,6 +25,7 @@ class Configuration
         array $composerConfiguration,
         string $testPath,
         int $verbosity,
+        bool $generateBaseline,
         bool $ignoreDocBlocks,
         bool $ignorePhpExtensions
     ) {
@@ -35,7 +38,9 @@ class Configuration
         $this->srcExcluded = $srcExcluded;
         $this->composerConfiguration = $composerConfiguration;
         $this->testsPath = $testPath;
+        $this->baselinePath = $this->normalizePath($root . '/phpat.baseline');
         $this->verbosity = (int) $verbosity;
+        $this->generateBaseline = $generateBaseline;
         $this->ignoreDocBlocks = (bool) $ignoreDocBlocks;
         $this->ignorePhpExtensions = (bool) $ignorePhpExtensions;
         $this->phpStormStubsPath = $root . '/vendor/jetbrains/phpstorm-stubs';
@@ -66,9 +71,19 @@ class Configuration
         return $this->testsPath;
     }
 
+    public function getBaselinePath(): string
+    {
+        return $this->baselinePath;
+    }
+
     public function getVerbosity(): int
     {
         return $this->verbosity;
+    }
+
+    public function mustGenerateBaseline(): bool
+    {
+        return $this->generateBaseline;
     }
 
     public function getIgnoreDocBlocks(): bool
